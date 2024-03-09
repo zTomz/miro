@@ -11,10 +11,7 @@ class MiroApp extends InheritedWidget {
     required this.theme,
     required this.darkTheme,
     required this.home,
-    this.child = const SizedBox.shrink(),
   }) : super(child: home);
-
-  final Widget child;
 
   static MiroApp? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<MiroApp>();

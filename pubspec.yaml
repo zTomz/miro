@@ -1,7 +1,7 @@
 name: miro
 description: "A Flutter UI Libary like Material."
 version: 0.0.0
-homepage:
+repository: https://github.com/zTomz/miro/
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
