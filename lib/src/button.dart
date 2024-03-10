@@ -3,8 +3,12 @@ import 'package:flutter/widgets.dart';
 import 'package:miro/miro.dart';
 import 'package:miro/src/colors.dart';
 
+/// A button that provides a hover and pressed effect
 class MiroButton extends StatefulWidget {
+  /// The content of the button
   final Widget child;
+
+  /// Gets called when the button is tapped
   final void Function() onTap;
 
   /// Gets called when the user hovers over the button
@@ -28,6 +32,7 @@ class MiroButton extends StatefulWidget {
   /// The border radius of the button
   final BorderRadius borderRadius;
 
+  /// Creates a MiroButton
   const MiroButton({
     super.key,
     required this.child,
@@ -106,6 +111,7 @@ class _MiroButtonState extends State<MiroButton> {
             child: Stack(
               children: [
                 widget.child,
+                // The colored box that will be shown when the button is hovered or pressed
                 Positioned.fill(
                   child: ColoredBox(
                     color: buttonState == MiroButtonState.disabled ||
@@ -125,10 +131,20 @@ class _MiroButtonState extends State<MiroButton> {
   }
 }
 
+/// The different states a button can have
 enum MiroButtonState {
+  /// The button is normal and not hovered or pressed
   normal,
-  focused,
+
+  /// The button is focused
   hovered,
+
+  /// The button is pressed
   pressed,
+
+  /// The button is disabled
   disabled,
+
+  /// The button is focused
+  focused,
 }
