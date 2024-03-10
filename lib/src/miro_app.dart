@@ -1,24 +1,24 @@
+import 'package:miro/miro.dart';
 import 'package:flutter/widgets.dart';
-import 'package:miro/src/theme/theme.dart';
 
-class MiroApp extends InheritedWidget {
-  final MiroTheme theme;
-  final MiroTheme darkTheme;
+class MiroApp extends StatelessWidget {
+  final MiroThemeData theme;
   final Widget home;
 
   const MiroApp({
     super.key,
     required this.theme,
-    required this.darkTheme,
     required this.home,
-  }) : super(child: home);
-
-  static MiroApp? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<MiroApp>();
-  }
+  });
 
   @override
-  bool updateShouldNotify(MiroApp oldWidget) {
-    return true;
+  Widget build(BuildContext context) {
+    return MiroTheme(
+      data: theme,
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: home,
+      ),
+    );
   }
 }

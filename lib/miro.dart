@@ -1,7 +1,6 @@
 library miro;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'src/miro_app.dart';
+// Theme exports
+export 'src/theme/miro_theme_data.dart';
+export 'src/theme/miro_theme.dart';
