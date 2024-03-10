@@ -2,28 +2,35 @@ import 'package:flutter/widgets.dart';
 import 'package:miro/src/colors.dart';
 
 class MiroThemeData {
-  Color primaryColor;
-  Color surfaceColor;
+  Color primary;
+  Color surface;
+  Color background;
   TextDirection textDirection;
 
   MiroThemeData({
-    required this.primaryColor,
-    required this.surfaceColor,
+    required this.primary,
+    required this.surface,
+    required this.background,
     this.textDirection = TextDirection.ltr,
   });
 
   MiroThemeData.fallback()
       : this(
-          primaryColor: Colors.blue,
-          surfaceColor: Colors.lightenColor(Colors.blue),
+          primary: Colors.blue,
+          surface: Colors.lightenColor(Colors.blue),
+          background: Colors.white,
           textDirection: TextDirection.ltr,
         );
 
-  MiroThemeData.fromSeed(Color seedColor,
-      {TextDirection textDirection = TextDirection.ltr})
-      : this(
-          primaryColor: seedColor,
-          surfaceColor: Colors.lightenColor(seedColor, amount: 0.2),
+  MiroThemeData.fromSeed(
+    Color seedColor, {
+    Color? surface,
+    Color background = Colors.white,
+    TextDirection textDirection = TextDirection.ltr,
+  }) : this(
+          primary: seedColor,
+          surface: surface ?? Colors.lightenColor(seedColor, amount: 0.2),
+          background: background,
           textDirection: textDirection,
         );
 }

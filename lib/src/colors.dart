@@ -21,7 +21,7 @@ abstract final class Colors {
 
   static const Color white = Color(0xFFFFFFFF);
 
-  static const Color blue = Color(0xFF2274A5);
+  static const Color blue = Color(0xFF349AD5);
 
   static const Color yellow = Color(0xFFEAB948);
 

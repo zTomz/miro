@@ -25,16 +25,21 @@ class MyHomeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFFFFFFF),
-      child: Center(
+    return MiroScaffold(
+      floatingActionButton: Container(
+        width: 50,
+        height: 50,
+        color: Colors.red,
+      ),
+      body: Center(
         child: Container(
           padding: const EdgeInsets.all(64),
-          color: MiroTheme.of(context).surfaceColor,
+          width: MediaQuery.of(context).size.width / 2,
+          color: MiroTheme.of(context).surface,
           child: Text(
             "Hello World",
             style: TextStyle(
-              color: MiroTheme.of(context).primaryColor,
+              color: MiroTheme.of(context).primary,
               fontWeight: FontWeight.bold,
               fontSize: 24,
             ),
