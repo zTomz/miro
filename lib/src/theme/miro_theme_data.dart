@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:miro/src/colors.dart';
 
@@ -33,4 +35,8 @@ class MiroThemeData {
           background: background,
           textDirection: textDirection,
         );
+
+  bool get isTouchDevice {
+    return Platform.isAndroid || Platform.isIOS || Platform.isFuchsia;
+  }
 }

@@ -30,4 +30,6 @@ abstract final class Colors {
   static const Color green = Color(0xFF5FAB70);
 
   static const Color red = Color(0xFFD8464B);
+
+  static const Color transparent = Color(0x00000000);
 }
