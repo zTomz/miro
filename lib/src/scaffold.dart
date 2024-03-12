@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:miro/src/theme/miro_theme.dart';
+import 'package:miro/src/theme/theme.dart';
 
 /// A scaffold to be used in miro apps.
 ///
@@ -65,4 +65,3 @@ class _MiroScaffoldState extends State<MiroScaffold> {
     );
   }
 }
-

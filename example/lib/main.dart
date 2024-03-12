@@ -1,5 +1,5 @@
-import 'package:flutter/widgets.dart';
 import 'package:miro/miro.dart';
+import 'package:flutter/widgets.dart';
 
 void main() {
   runApp(
@@ -34,9 +34,10 @@ class _CounterAppState extends State<CounterApp> {
   Widget build(BuildContext context) {
     return MiroScaffold(
       floatingActionButton: MiroButton(
+        tooltip: "This is my floating button",
         hoverColor: Colors.black.withOpacity(0.1),
         tapColor: Colors.black.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(16),
         onTap: () {
           setState(() {
             count++;
@@ -51,12 +52,37 @@ class _CounterAppState extends State<CounterApp> {
         ),
       ),
       body: Center(
-        child: Text(
-          "Button clicked: $count times",
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 30,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Button clicked: $count times",
+              style: const TextStyle(
+                fontSize: 30,
+              ),
+            ),
+            MiroButton(
+              tooltip:
+                  "Floating action button Floating action button Floating action button",
+              tooltipDecoration:
+                  TooltipDecoration.styleFrom(textAlign: TextAlign.center, maxWidth: 500),
+              hoverColor: Colors.black.withOpacity(0.1),
+              tapColor: Colors.black.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(16),
+              onTap: () {
+                setState(() {
+                  count++;
+                });
+              },
+              child: Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: MiroTheme.of(context).primary,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

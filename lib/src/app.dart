@@ -39,11 +39,22 @@ class MiroApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MiroTheme(
       data: theme,
-      child: Directionality(
-        textDirection: TextDirection.ltr,
-        child: home,
+      child: DefaultTextStyle(
+        style: const TextStyle(
+          color: Colors.black,
+        ),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Overlay(
+            clipBehavior: Clip.none,
+            initialEntries: [
+              OverlayEntry(
+                builder: (context) => home,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
-

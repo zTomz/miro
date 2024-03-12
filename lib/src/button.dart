@@ -1,15 +1,16 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:miro/miro.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/gestures.dart';
 import 'package:miro/src/colors.dart';
+import 'package:miro/src/tooltip.dart';
 
 /// A button that provides a hover and pressed effect
 class MiroButton extends StatefulWidget {
-  /// The content of the button
-  final Widget child;
-
   /// Gets called when the button is tapped
   final void Function() onTap;
+
+  /// The content of the button
+  final Widget child;
 
   /// Gets called when the user hovers over the button
   final void Function(PointerEnterEvent event)? onEnter;
@@ -32,11 +33,23 @@ class MiroButton extends StatefulWidget {
   /// The border radius of the button
   final BorderRadius borderRadius;
 
+  /// The focus node of the button
+  final FocusNode? focusNode;
+
+  /// Whether the button should be autofocused
+  final bool autofocus;
+
+  /// The tooltip of the button
+  final String? tooltip;
+
+  /// The decoration of the tooltip
+  final TooltipDecoration? tooltipDecoration;
+
   /// Creates a MiroButton
   const MiroButton({
     super.key,
-    required this.child,
     required this.onTap,
+    required this.child,
     this.onEnter,
     this.onExit,
     this.mouseCursor = SystemMouseCursors.click,
@@ -44,6 +57,10 @@ class MiroButton extends StatefulWidget {
     this.hoverColor = Colors.transparent,
     this.tapColor = Colors.transparent,
     this.borderRadius = BorderRadius.zero,
+    this.tooltip,
+    this.focusNode,
+    this.autofocus = false,
+    this.tooltipDecoration,
   });
 
   @override
@@ -64,65 +81,97 @@ class _MiroButtonState extends State<MiroButton> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: widget.borderRadius,
-      child: IgnorePointer(
-        ignoring: !widget.enabled,
-        child: MouseRegion(
-          onEnter: (event) {
-            setState(() {
-              buttonState = MiroButtonState.hovered;
-            });
+    return Semantics(
+      container: true,
+      button: true,
+      enabled: widget.enabled,
+      focusable: true,
+      focused: buttonState == MiroButtonState.focused,
+      tooltip: widget.tooltip,
+      child: Focus(
+        focusNode: widget.focusNode,
+        onFocusChange: (value) {
+          setState(() {
+            buttonState =
+                value ? MiroButtonState.focused : MiroButtonState.normal;
+          });
+        },
+        onKeyEvent: (focusNode, event) {
+          if (event.logicalKey == LogicalKeyboardKey.enter ||
+              event.logicalKey == LogicalKeyboardKey.numpadEnter) {
+            widget.onTap();
 
-            widget.onEnter?.call(event);
-          },
-          onExit: (event) {
-            setState(() {
-              buttonState = MiroButtonState.normal;
-            });
+            return KeyEventResult.handled;
+          }
 
-            widget.onExit?.call(event);
-          },
-          cursor: widget.enabled ? widget.mouseCursor : MouseCursor.defer,
-          child: GestureDetector(
-            onTap: widget.enabled ? widget.onTap : null,
-            onTapDown: (_) {
-              setState(() {
-                buttonState = MiroButtonState.pressed;
-              });
-            },
-            onTapUp: (details) {
-              if (details.kind == PointerDeviceKind.touch) {
-                setState(() {
-                  buttonState = MiroButtonState.normal;
-                });
-                return;
-              }
+          return KeyEventResult.ignored;
+        },
+        autofocus: widget.autofocus,
+        child: Tooltip(
+          message: widget.tooltip ?? "",
+          decoration: widget.tooltipDecoration,
+          child: ClipRRect(
+            borderRadius: widget.borderRadius,
+            child: IgnorePointer(
+              ignoring: !widget.enabled,
+              child: MouseRegion(
+                onEnter: (event) {
+                  setState(() {
+                    buttonState = MiroButtonState.hovered;
+                  });
 
-              setState(() {
-                buttonState = MiroButtonState.hovered;
-              });
-            },
-            onTapCancel: () {
-              setState(() {
-                buttonState = MiroButtonState.normal;
-              });
-            },
-            child: Stack(
-              children: [
-                widget.child,
-                // The colored box that will be shown when the button is hovered or pressed
-                Positioned.fill(
-                  child: ColoredBox(
-                    color: buttonState == MiroButtonState.disabled ||
-                            buttonState == MiroButtonState.normal
-                        ? Colors.transparent
-                        : buttonState == MiroButtonState.pressed
-                            ? widget.tapColor
-                            : widget.hoverColor,
+                  widget.onEnter?.call(event);
+                },
+                onExit: (event) {
+                  setState(() {
+                    buttonState = MiroButtonState.normal;
+                  });
+
+                  widget.onExit?.call(event);
+                },
+                cursor: widget.enabled ? widget.mouseCursor : MouseCursor.defer,
+                child: GestureDetector(
+                  onTap: widget.enabled ? widget.onTap : null,
+                  onTapDown: (_) {
+                    setState(() {
+                      buttonState = MiroButtonState.pressed;
+                    });
+                  },
+                  onTapUp: (details) {
+                    if (details.kind == PointerDeviceKind.touch) {
+                      setState(() {
+                        buttonState = MiroButtonState.normal;
+                      });
+                      return;
+                    }
+
+                    setState(() {
+                      buttonState = MiroButtonState.hovered;
+                    });
+                  },
+                  onTapCancel: () {
+                    setState(() {
+                      buttonState = MiroButtonState.normal;
+                    });
+                  },
+                  child: Stack(
+                    children: [
+                      widget.child,
+                      // The colored box that will be shown when the button is hovered or pressed
+                      Positioned.fill(
+                        child: ColoredBox(
+                          color: buttonState == MiroButtonState.disabled ||
+                                  buttonState == MiroButtonState.normal
+                              ? Colors.transparent
+                              : buttonState == MiroButtonState.pressed
+                                  ? widget.tapColor
+                                  : widget.hoverColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ),
