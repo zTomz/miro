@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
 import 'package:miro/miro.dart';
 import 'package:flutter/widgets.dart';
 
@@ -31,12 +32,12 @@ class Tooltip extends StatefulWidget {
 class _TooltipState extends State<Tooltip> {
   final OverlayPortalController controller = OverlayPortalController();
   Timer? timer;
+  Timer? panDownTimer;
 
   @override
   void dispose() {
-    if (timer != null) {
-      timer!.cancel();
-    }
+    timer?.cancel();
+    panDownTimer?.cancel();
 
     super.dispose();
   }
@@ -47,90 +48,117 @@ class _TooltipState extends State<Tooltip> {
       return widget.child;
     }
 
-    print(widget.decoration);
+    return Semantics(
+      container: true,
+      button: true,
+      enabled: true,
+      tooltip: widget.message,
+      child: GestureDetector(
+        // onLongPress: () => controller.show(),
+        onTapDown: (details) {
+          // If the input kind is mouse or trackpad, do not show the tooltip
+          if (details.kind == PointerDeviceKind.mouse ||
+              details.kind == PointerDeviceKind.trackpad) {
+            return;
+          }
 
-    return GestureDetector(
-      onLongPress: toggleTooltip,
-      child: MouseRegion(
-        onEnter: (event) => controller.show(),
-        onExit: (event) => controller.hide(),
-        child: OverlayPortal(
-          controller: controller,
-          overlayChildBuilder: (context) {
-            final OverlayState overlayState =
-                Overlay.of(context, debugRequiredFor: widget);
-            final RenderBox box = this.context.findRenderObject()! as RenderBox;
-            final Offset target = box.localToGlobal(
-              box.size.center(Offset.zero),
-              ancestor: overlayState.context.findRenderObject(),
-            );
-
-            double halfOfWidth;
-            TooltipPosition position;
-
-            final textPainter = TextPainter(
-              text: TextSpan(
-                text: widget.message,
-                style: widget.decoration.style,
-              ),
-              textDirection: MiroTheme.of(context).textDirection,
-            )..layout(
-                maxWidth:
-                    widget.decoration.maxWidth - widget.decoration.padding * 2,
+          panDownTimer = Timer(
+            widget.decoration.pressDuration,
+            () {
+              toggleTooltip();
+            },
+          );
+        },
+        onTapUp: (details) {
+          panDownTimer?.cancel();
+        },
+        child: MouseRegion(
+          onEnter: (event) => controller.show(),
+          onExit: (event) => controller.hide(),
+          child: OverlayPortal(
+            controller: controller,
+            overlayChildBuilder: (context) {
+              final OverlayState overlayState = Overlay.of(
+                context,
+                debugRequiredFor: widget,
+              );
+              final RenderBox box =
+                  this.context.findRenderObject()! as RenderBox;
+              final Offset target = box.localToGlobal(
+                box.size.center(Offset.zero),
+                ancestor: overlayState.context.findRenderObject(),
               );
 
-            final tooltipHeight =
-                textPainter.size.height + widget.decoration.padding * 2;
+              double halfOfWidth;
+              TooltipPosition position;
 
-            if (textPainter.size.width + widget.decoration.padding * 2 <
-                widget.decoration.maxWidth) {
-              halfOfWidth =
-                  (textPainter.size.width + widget.decoration.padding * 2) / 2;
-            } else {
-              halfOfWidth = widget.decoration.maxWidth / 2;
-            }
-
-            if (widget.decoration.fixedPosition != null) {
-              position = widget.decoration.fixedPosition!;
-            } else {
-              if (target.dy +
-                      box.size.height / 2 +
-                      widget.decoration.spacing +
-                      tooltipHeight >
-                  MediaQuery.of(context).size.height) {
-                position = TooltipPosition.top;
-              } else {
-                position = TooltipPosition.bottom;
-              }
-            }
-
-            return Positioned(
-              top: position == TooltipPosition.top
-                  ? target.dy -
-                      box.size.height / 2 -
-                      tooltipHeight -
-                      widget.decoration.spacing
-                  : target.dy + box.size.height / 2 + widget.decoration.spacing,
-              left: target.dx - halfOfWidth,
-              child: Container(
-                padding: EdgeInsets.all(widget.decoration.padding),
-                constraints: BoxConstraints(
-                  maxWidth: widget.decoration.maxWidth,
-                ),
-                decoration: BoxDecoration(
-                  color: widget.decoration.backgroundColor,
-                  borderRadius: widget.decoration.borderRadius,
-                ),
-                child: Text(
-                  widget.message,
+              final textPainter = TextPainter(
+                text: TextSpan(
+                  text: widget.message,
                   style: widget.decoration.style,
-                  textAlign: widget.decoration.textAlign,
-                  textDirection: widget.decoration.textDirection,
                 ),
-              ),
-            );
-          },
-          child: widget.child,
+                textDirection: MiroTheme.of(context).textDirection,
+              )..layout(
+                  maxWidth: widget.decoration.maxWidth -
+                      widget.decoration.padding * 2,
+                );
+
+              final tooltipHeight =
+                  textPainter.size.height + widget.decoration.padding * 2;
+
+              if (textPainter.size.width + widget.decoration.padding * 2 <
+                  widget.decoration.maxWidth) {
+                halfOfWidth =
+                    (textPainter.size.width + widget.decoration.padding * 2) /
+                        2;
+              } else {
+                halfOfWidth = widget.decoration.maxWidth / 2;
+              }
+
+              if (widget.decoration.fixedPosition != null) {
+                position = widget.decoration.fixedPosition!;
+              } else {
+                if (target.dy +
+                        box.size.height / 2 +
+                        widget.decoration.spacing +
+                        tooltipHeight >
+                    MediaQuery.of(context).size.height) {
+                  position = TooltipPosition.top;
+                } else {
+                  position = TooltipPosition.bottom;
+                }
+              }
+
+              return Positioned(
+                top: position == TooltipPosition.top
+                    ? target.dy -
+                        box.size.height / 2 -
+                        tooltipHeight -
+                        widget.decoration.spacing
+                    : target.dy +
+                        box.size.height / 2 +
+                        widget.decoration.spacing,
+                left: target.dx - halfOfWidth,
+                child: Container(
+                  padding: EdgeInsets.all(widget.decoration.padding),
+                  constraints: BoxConstraints(
+                    maxWidth: widget.decoration.maxWidth,
+                  ),
+                  decoration: BoxDecoration(
+                    color: widget.decoration.backgroundColor,
+                    borderRadius: widget.decoration.borderRadius,
+                  ),
+                  child: Text(
+                    widget.message,
+                    style: widget.decoration.style,
+                    textAlign: widget.decoration.textAlign,
+                    textDirection: widget.decoration.textDirection,
+                  ),
+                ),
+              );
+            },
+            child: widget.child,
+          ),
         ),
       ),
     );
@@ -186,6 +214,9 @@ class TooltipDecoration {
   /// The duration the tooltip stays visible
   final Duration duration;
 
+  /// The duration the user has to press to show the tooltip
+  final Duration pressDuration;
+
   const TooltipDecoration({
     required this.style,
     required this.textAlign,
@@ -196,6 +227,7 @@ class TooltipDecoration {
     required this.padding,
     required this.maxWidth,
     required this.duration,
+    required this.pressDuration,
     this.fixedPosition,
   });
 
@@ -211,6 +243,7 @@ class TooltipDecoration {
   /// - maxWidth: [150]
   /// - fixedPosition: [null]
   /// - duration: [Duration(seconds: 2)]
+  /// - pressDuration: [Duration(milliseconds: 1500)]
   TooltipDecoration.styleFrom({
     TextStyle? style,
     TextAlign? textAlign,
@@ -222,6 +255,7 @@ class TooltipDecoration {
     double? maxWidth,
     TooltipPosition? fixedPosition,
     Duration? duration,
+    Duration? pressDuration,
   }) : this(
           style: style ??
               const TextStyle(
@@ -236,11 +270,12 @@ class TooltipDecoration {
           maxWidth: maxWidth ?? 150,
           fixedPosition: fixedPosition,
           duration: duration ?? const Duration(seconds: 2),
+          pressDuration: pressDuration ?? const Duration(milliseconds: 1500),
         );
 
   @override
   String toString() {
-    return 'TooltipDecoration(style: $style, textAlign: $textAlign, textDirection: $textDirection, backgroundColor: $backgroundColor, borderRadius: $borderRadius, spacing: $spacing, padding: $padding, maxWidth: $maxWidth, fixedPosition: $fixedPosition, duration: $duration)';
+    return 'TooltipDecoration(style: $style, textAlign: $textAlign, textDirection: $textDirection, backgroundColor: $backgroundColor, borderRadius: $borderRadius, spacing: $spacing, padding: $padding, maxWidth: $maxWidth, fixedPosition: $fixedPosition, duration: $duration, pressDuration: $pressDuration)';
   }
 }
 
